@@ -20,10 +20,12 @@ public class Page implements Callable<String> {
 	
 	String URL = null;
 	int page = -1;
+	boolean isImage = false;
 	
-	public Page(String URL, int page){
+	public Page(String URL, int page, boolean isImage){
 		this.URL = URL;
 		this.page = page;
+		this.isImage = isImage;
 	}
 	
 	public String call() throws Exception {
@@ -58,6 +60,7 @@ public class Page implements Callable<String> {
 			
 			//System.out.println("From future -> "+o.get());
 			if(o.get() != null){
+				if(isImage){
 				records.add(new String[] {o.get().getPartNum()
 						,o.get().getUrl()
 						,o.get().getTitle()
@@ -72,6 +75,20 @@ public class Page implements Callable<String> {
 						,o.get().getHeight()
 						,o.get().getWeight()
 						,o.get().getWidth()});
+					} else {
+					records.add(new String[] {o.get().getPartNum()
+						,o.get().getUrl()
+						,o.get().getTitle()
+						,o.get().getManufacturer()
+						,o.get().getCdwNum()
+						,o.get().getDescription()
+						,o.get().getListPrice()
+						,o.get().getSalePrice()
+						
+						,o.get().getDepth()
+						,o.get().getHeight()
+						,o.get().getWeight()
+						,o.get().getWidth()});}
 			}
 			
 			Config cfg = new Config();

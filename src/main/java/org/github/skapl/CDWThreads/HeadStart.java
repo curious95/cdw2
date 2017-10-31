@@ -234,7 +234,33 @@ allDatan.addAll(rows);
 
 				writer.writeNext(record);}
 				else{
-				
+				FinalDatan final_data = new FinalData();
+				int val = oo.getValue().getAsJsonObject().get("val").getAsInt();
+				int unique = oo.getValue().getAsJsonObject().get("unique").getAsInt();
+				CDWDatan tmp = allDatan.get(val);
+
+				final_data.setPartNum(tmp.getPartNum());
+				final_data.setUrl(tmp.getUrl());
+				final_data.setTitle(tmp.getTitle());
+				final_data.setManufacturer(tmp.getManufacturer());
+				final_data.setCdwNum(tmp.getCdwNum());
+				final_data.setDescription(tmp.getDescription());
+				final_data.setListPrice(tmp.getListPrice());
+				final_data.setSalePrice(tmp.getSalePrice());
+				final_data.setImgURL(tmp.getImgURL());
+				final_data.setImgFile(tmp.getImgFile());
+				final_data.setDepth(tmp.getDepth());
+				final_data.setHeight(tmp.getHeight());
+				final_data.setWeight(tmp.getWeight());
+				final_data.setWidth(tmp.getWidth());
+				final_data.setQuantity("" + unique);
+
+				String[] record = { final_data.getPartNum(), final_data.getUrl(), final_data.getTitle(),
+						final_data.getManufacturer(), final_data.getCdwNum(), final_data.getDescription(),
+						final_data.getListPrice(), final_data.getSalePrice(), final_data.getQuantity(), final_data.getDepth(),
+						final_data.getHeight(), final_data.getWeight(), final_data.getWidth() };
+
+				writer.writeNext(record);}
 			}
 
 		}

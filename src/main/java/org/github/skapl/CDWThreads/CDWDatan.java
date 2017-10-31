@@ -10,8 +10,7 @@ public class CDWData {
 	String description;
 	String listPrice;
 	String salePrice;
-	String imgURL;
-	String imgFile;
+	
 	String depth;
 	String height;
 	String weight;
@@ -66,18 +65,7 @@ public class CDWData {
 	public void setSalePrice(String salePrice) {
 		this.salePrice = salePrice;
 	}
-	public String getImgFile() {
-		return imgFile;
-	}
-	public void setImgFile(String imgFile) {
-		this.imgFile = imgFile;
-	}
-	public String getImgURL() {
-		return imgURL;
-	}
-	public void setImgURL(String imgURL) {
-		this.imgURL = imgURL;
-	}
+	
 	public String getHeight() {
 		return height;
 	}
@@ -111,8 +99,7 @@ public class CDWData {
 				+ " :: " + description
 				+ " :: " + listPrice
 				+ " :: " + salePrice
-				+ " :: " + imgURL
-				+ " :: " + imgFile
+				
 				+ " :: " + depth
 				+ " :: " + height
 				+ " :: " + weight

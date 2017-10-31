@@ -28,6 +28,14 @@ public class HeadStart {
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException, IOException {
 		// TODO Auto-generated method stub
+		boolean isImage = false;
+if(args.length==0){
+isImage = false;
+} else if(args[0].equals("true")){
+isImage = true;
+}else{
+isImage = false;
+}
 		String templateURL = "https://www.cdw.com/shop/search/result.aspx?key=&searchscope=all&sr=1&outlet=1&MaxRecords=72&pCurrent=";
 		WebDriver driver = new HtmlUnitDriver();
 		driver.get("https://www.cdw.com/shop/search/result.aspx?key=&searchscope=all&sr=1&outlet=1&MaxRecords=72&pCurrent=1");

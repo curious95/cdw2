@@ -59,7 +59,7 @@ isImage = false;
 			List<Future<String>> future = new ArrayList<Future<String>>();
 			
 			for(int i=1; i<=2 && pCurrent<=page; i++){
-				callable.add(new Page(templateURL, pCurrent));
+				callable.add(new Page(templateURL, pCurrent, isImage));
 				System.out.println("Starting for page :: "+pCurrent);
 				future.add(service.submit(callable.get(i-1)));
 				pCurrent++;

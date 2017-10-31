@@ -83,13 +83,16 @@ isImage = false;
 		JsonObject test = new JsonObject();
 		Config cfg = new Config();
 		List<CDWData> allData = new ArrayList<CDWData>();
+		List<CDWDatan> allDatan = new ArrayList<CDWDatan>();
 		for(int i=1; i<=page; i++){
 			
 			try {
 				
 				CSVReader reader = new CSVReader(new FileReader(cfg.getProperty("out_path") + "cdw-"+i+".csv"), ',', '"');
 				
-				ColumnPositionMappingStrategy<CDWData> beanStrategy = new ColumnPositionMappingStrategy<CDWData>();
+				if(isImage){
+
+					ColumnPositionMappingStrategy<CDWData> beanStrategy = new ColumnPositionMappingStrategy<CDWData>();
 				beanStrategy.setType(CDWData.class);
 				String[] mapping = new String[] { "partNum", "url", "title", "manufacturer", "cdwNum", "description",
 						"listPrice", "salePrice", "imgURL", "imgFile", "depth", "height", "weight", "width" };
@@ -99,6 +102,21 @@ isImage = false;
 				List<CDWData> rows = csvToBean.parse(beanStrategy, reader);
 				
 				allData.addAll(rows);
+}
+else{
+
+ColumnPositionMappingStrategy<CDWDatan> beanStrategy = new ColumnPositionMappingStrategy<CDWDatan>();
+				beanStrategy.setType(CDWDatan.class);
+				String[] mapping = new String[] { "partNum", "url", "title", "manufacturer", "cdwNum", "description",
+						"listPrice", "salePrice", "depth", "height", "weight", "width" };
+				beanStrategy.setColumnMapping(mapping);
+
+				CsvToBean<CDWDatan> csvToBean = new CsvToBean<CDWDatan>();
+				List<CDWDatan> rows = csvToBean.parse(beanStrategy, reader);
+				
+allDatan.addAll(rows);
+}
+				
 				reader.close();
 				
 			} catch (FileNotFoundException e) {
@@ -112,8 +130,9 @@ isImage = false;
 		CSVWriter allWriter = new CSVWriter(new FileWriter(cfg.getProperty("out_path") + "all_out.csv"), ',', '"');
 		
 		
-		
+		if(isImage){
 		for (int i = 0; i < allData.size(); i++) {
+			
 			CDWData tmp = allData.get(i);
 			String[] record = { tmp.getPartNum(), tmp.getUrl(), tmp.getTitle(),
 					tmp.getManufacturer(), tmp.getCdwNum(), tmp.getDescription(),
@@ -141,15 +160,51 @@ isImage = false;
 				t2.add(allData.get(i).getSalePrice(), t1);
 				test.add(allData.get(i).getPartNum(), t2);
 			}
-		}
+		}}else{
+			for (int i = 0; i < allDatan.size(); i++) {
+			
+			CDWDatan tmp = allDatan.get(i);
+			String[] record = { tmp.getPartNum(), tmp.getUrl(), tmp.getTitle(),
+					tmp.getManufacturer(), tmp.getCdwNum(), tmp.getDescription(),
+					tmp.getListPrice(), tmp.getSalePrice(), tmp.getDepth(),
+					tmp.getHeight(), tmp.getWeight(), tmp.getWidth() };
+			allWriter.writeNext(record);
+			if (test.has(allDatan.get(i).getPartNum())) {
+				if (test.get(allDatan.get(i).getPartNum()).getAsJsonObject().has(allDatan.get(i).getSalePrice())) {
+					int x = test.get(allDatan.get(i).getPartNum()).getAsJsonObject().get(allDatan.get(i).getSalePrice())
+							.getAsJsonObject().get("unique").getAsInt();
+					test.get(allDatan.get(i).getPartNum()).getAsJsonObject().get(allDatan.get(i).getSalePrice())
+							.getAsJsonObject().addProperty("unique", x + 1);
+				} else {
+					JsonObject t1 = new JsonObject();
+					t1.addProperty("unique", 1);
+					t1.addProperty("val", i);
+					test.get(allDatan.get(i).getPartNum()).getAsJsonObject().add(allDatan.get(i).getSalePrice(), t1);
+				}
+			} else {
+				JsonObject t1 = new JsonObject();
+				t1.addProperty("unique", 1);
+				t1.addProperty("val", i);
+				JsonObject t2 = new JsonObject();
+				t2.add(allDatan.get(i).getSalePrice(), t1);
+				test.add(allDatan.get(i).getPartNum(), t2);
+			}
+		}}
+			
 		allWriter.close();
 		
 		CSVWriter writer = new CSVWriter(new FileWriter(cfg.getProperty("out_path") + "final_out.csv"), ',', '"');
 		String[] header = {"Part Num", "Url", "Title", "Manufacturer", "Cdw Num", "Description", "List Price", "Sale Price", "Image URL", "Image File", "Quantity", "Depth", "Height", "Weight", "Width"};
-		writer.writeNext(header);
+		String[] headern = {"Part Num", "Url", "Title", "Manufacturer", "Cdw Num", "Description", "List Price", "Sale Price", "Quantity", "Depth", "Height", "Weight", "Width"};
+		if(isImage){
+		writer.writeNext(header);}
+		else{
+			writer.writeNext(headern);}
+			
 		for (Map.Entry<String, JsonElement> o : test.entrySet()) {
 
 			for (Map.Entry<String, JsonElement> oo : o.getValue().getAsJsonObject().entrySet()) {
+				if(isImage){
 				FinalData final_data = new FinalData();
 				int val = oo.getValue().getAsJsonObject().get("val").getAsInt();
 				int unique = oo.getValue().getAsJsonObject().get("unique").getAsInt();
@@ -177,7 +232,9 @@ isImage = false;
 						final_data.getImgFile(), final_data.getQuantity(), final_data.getDepth(),
 						final_data.getHeight(), final_data.getWeight(), final_data.getWidth() };
 
-				writer.writeNext(record);
+				writer.writeNext(record);}
+				else{
+				
 			}
 
 		}

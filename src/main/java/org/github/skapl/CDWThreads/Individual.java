@@ -1,6 +1,5 @@
 package org.github.skapl.CDWThreads;
 
-import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -8,18 +7,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.io.File;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlImage;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
-
-import javax.imageio.ImageIO;
-import javax.swing.text.html.HTML;
 
 public class Individual implements Callable<CDWData> {
 
@@ -53,24 +45,29 @@ public class Individual implements Callable<CDWData> {
 					.size() > 0;
 			if (!inStock) {
 				//System.out.println("NOT IN STOCK");
+				driver.close();
+				driver.quit();
 				return null;
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		}
+		
 		boolean notAvailable = false;
 		try{
 			//#AddToCart > div.call-messaging.locked-call-messaging
 			notAvailable = driver.findElements(By.cssSelector("#AddToCart > div.call-messaging.locked-call-messaging")).size() > 0;
 			if(notAvailable){
-				System.out.println("returning ");
+				//System.out.println("returning ");
+				driver.close();
+				driver.quit();
 				return null;
 			}
 		} catch (Exception ex){
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		}
 
-		try {
+		/*try {
 			// #primaryProductAvailability > div.short-message-block
 			// >
 			// span.message.availability.in-stock > link
@@ -84,7 +81,7 @@ public class Individual implements Callable<CDWData> {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		}
+		}*/
 		row.setUrl(this.URL);
 		try {
 			String[] tmpNum = null;
@@ -93,7 +90,9 @@ public class Individual implements Callable<CDWData> {
 			//System.out.println(tmpNum[0]);
 			row.setPartNum(tmpNum[0].split(":")[1].trim().replaceAll("-BSTK", ""));
 			row.setCdwNum(tmpNum[1].split(":")[1].trim());
+			row.setImgFile(row.getPartNum() + ".jpg");
 		} catch (Exception ex) {
+			row.setImgFile("null");
 			row.setPartNum("null");
 			row.setCdwNum("null");
 		}
@@ -140,7 +139,7 @@ public class Individual implements Callable<CDWData> {
 		} catch (Exception ex) {
 			row.setSalePrice("null");
 			// salePrice = "null";
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		}
 
 		try {
@@ -155,23 +154,19 @@ public class Individual implements Callable<CDWData> {
 			String logo ="https:"+driver
 					.findElement(By.cssSelector(
 							".main-image > img")).getAttribute("data-blzsrc");
-
 			//System.out.println(logo);
-			row.setImgFile(row.getPartNum() + ".jpg");
 			row.setImgURL(logo);
 
 
 			if (isImage) {
 				URL website = new URL(logo);
 				ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-				FileOutputStream fos = new FileOutputStream("img_data/" + row.getCdwNum() + ".jpg");
+				FileOutputStream fos = new FileOutputStream("img_data/" + row.getImgFile());
 				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
 			}
 
-			if (row.getImgURL().contains("data:image/gif;base64,")) {
-				row.setImgURL("https://" + row.getImgURL());
-			}
+			
 			//image ____________
 			/*WebClient webClient = new WebClient();
 			System.out.println("imgae download");
@@ -186,8 +181,8 @@ public class Individual implements Callable<CDWData> {
 
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			row.setImgFile("null");
+			//ex.printStackTrace();
+			//row.setImgFile("null");
 			row.setImgURL("null");
 		}
 
@@ -213,7 +208,7 @@ public class Individual implements Callable<CDWData> {
 			}
 			// System.out.println(tmp);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
 		}
 
 		//System.out.println(Thread.currentThread().getName()+" -> "+row.toString());

@@ -56,47 +56,35 @@ public class Page implements Callable<String> {
 		
 		//writing to file
 		List<String[]> records = new ArrayList<String[]>();
-		for(Future<CDWData> o : future){
-			
-			//System.out.println("From future -> "+o.get());
-			if(o.get() != null){
-				if(isImage){
-				records.add(new String[] {o.get().getPartNum()
-						,o.get().getUrl()
-						,o.get().getTitle()
-						,o.get().getManufacturer()
-						,o.get().getCdwNum()
-						,o.get().getDescription()
-						,o.get().getListPrice()
-						,o.get().getSalePrice()
-						,o.get().getImgURL()
-						,o.get().getImgFile()
-						,o.get().getDepth()
-						,o.get().getHeight()
-						,o.get().getWeight()
-						,o.get().getWidth()});
-					} else {
+		try{
+			for(Future<CDWData> o : future){
+				//System.out.println("From future -> "+o.get());
+				if(o.get() != null){
 					records.add(new String[] {o.get().getPartNum()
-						,o.get().getUrl()
-						,o.get().getTitle()
-						,o.get().getManufacturer()
-						,o.get().getCdwNum()
-						,o.get().getDescription()
-						,o.get().getListPrice()
-						,o.get().getSalePrice()
-						
-						,o.get().getDepth()
-						,o.get().getHeight()
-						,o.get().getWeight()
-						,o.get().getWidth()});}
+							,o.get().getUrl()
+							,o.get().getTitle()
+							,o.get().getManufacturer()
+							,o.get().getCdwNum()
+							,o.get().getDescription()
+							,o.get().getListPrice()
+							,o.get().getSalePrice()
+							,o.get().getImgURL()
+							,o.get().getImgFile()
+							,o.get().getDepth()
+							,o.get().getHeight()
+							,o.get().getWeight()
+							,o.get().getWidth()});
+				}
 			}
-			
-			Config cfg = new Config();
-			CSVWriter writer = new CSVWriter(new FileWriter(cfg.getProperty("out_path")+"/cdw-"+this.page+".csv"), ',', '"');
-			writer.writeAll(records);
-			writer.close();
-			
+		} catch(Exception ex){
+			//System.out.println("Error at :: " + this.URL);
+			//ex.printStackTrace();
 		}
+		Config cfg = new Config();
+		CSVWriter writer = new CSVWriter(new FileWriter(cfg.getProperty("out_path")+"/cdw-"+this.page+".csv"), ',', '"');
+		writer.writeAll(records);
+		writer.close();
+		
 		driver.close();
 		driver.quit();
 				//System.out.println("Finished");

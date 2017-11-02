@@ -49,7 +49,7 @@ public class Page implements Callable<String> {
 			link = results.get(i).findElement(By.cssSelector("div.columns-right > div.column-2 > h2 > a"));
 			String url = link.getAttribute("href");
 			//System.out.println(link.getAttribute("href"));
-			callable.add(new Individual(url));
+			callable.add(new Individual(url, this.isImage));
 			future.add(service.submit(callable.get(i)));
 		}
 		service.shutdown();
@@ -92,12 +92,13 @@ public class Page implements Callable<String> {
 			}
 			
 			Config cfg = new Config();
-			CSVWriter writer = new CSVWriter(new FileWriter(cfg.getProperty("out_path")+"cdw-"+this.page+".csv"), ',', '"');
+			CSVWriter writer = new CSVWriter(new FileWriter(cfg.getProperty("out_path")+"/cdw-"+this.page+".csv"), ',', '"');
 			writer.writeAll(records);
 			writer.close();
 			
 		}
-				
+		driver.close();
+		driver.quit();
 				//System.out.println("Finished");
 		return "Finished Page :: " + this.page;
 	}

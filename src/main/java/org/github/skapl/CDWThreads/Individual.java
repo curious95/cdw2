@@ -1,20 +1,34 @@
 package org.github.skapl.CDWThreads;
 
+import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.io.File;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlImage;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
+import javax.imageio.ImageIO;
+import javax.swing.text.html.HTML;
+
 public class Individual implements Callable<CDWData> {
 
 	String URL = null;
+	boolean isImage = false;
 
-	Individual(String URL) {
+	Individual(String URL, boolean isImage) {
 		this.URL = URL;
+		this.isImage = isImage;
 	}
 
 	public CDWData call() {
@@ -42,6 +56,17 @@ public class Individual implements Callable<CDWData> {
 				return null;
 			}
 		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		boolean notAvailable = false;
+		try{
+			//#AddToCart > div.call-messaging.locked-call-messaging
+			notAvailable = driver.findElements(By.cssSelector("#AddToCart > div.call-messaging.locked-call-messaging")).size() > 0;
+			if(notAvailable){
+				System.out.println("returning ");
+				return null;
+			}
+		} catch (Exception ex){
 			ex.printStackTrace();
 		}
 
@@ -127,21 +152,41 @@ public class Individual implements Callable<CDWData> {
 			// div.image-gallery
 			// >
 			// div.main-media > div.main-image > img
-			String logo = driver
+			String logo ="https:"+driver
 					.findElement(By.cssSelector(
-							"#primaryProductTop > div.productLeft > div.image-gallery > div.main-media > div.main-image > img"))
-					.getAttribute("src");
+							".main-image > img")).getAttribute("data-blzsrc");
 
+			//System.out.println(logo);
 			row.setImgFile(row.getPartNum() + ".jpg");
-
 			row.setImgURL(logo);
+
+
+			if (isImage) {
+				URL website = new URL(logo);
+				ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+				FileOutputStream fos = new FileOutputStream("img_data/" + row.getCdwNum() + ".jpg");
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+
+			}
 
 			if (row.getImgURL().contains("data:image/gif;base64,")) {
 				row.setImgURL("https://" + row.getImgURL());
 			}
+			//image ____________
+			/*WebClient webClient = new WebClient();
+			System.out.println("imgae download");
+			HtmlPage page = webClient.getPage(this.URL);
+			HtmlImage image = page.<HtmlImage>getFirstByXPath("/*//*[@id=\"primaryProductTop\"]/div[1]/div[3]/div[2]/div[1]/img");
+			System.out.println(image.getNameAttribute());
+			File imageFile = new File("img_data/"+row.getImgFile());
+			image.saveAs(imageFile);*/
+
+
+
+
 
 		} catch (Exception ex) {
-			// ex.printStackTrace();
+			ex.printStackTrace();
 			row.setImgFile("null");
 			row.setImgURL("null");
 		}
@@ -173,6 +218,7 @@ public class Individual implements Callable<CDWData> {
 
 		//System.out.println(Thread.currentThread().getName()+" -> "+row.toString());
 		driver.close();
+		driver.quit();
 		return row;
 		
 		
